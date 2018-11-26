@@ -11,8 +11,22 @@
  *     gasPrice: 10000000000,
  *   },
  */
+var HDWalletProvider = require("truffle-hdwallet-provider");
+var mnemonicWXL = "good mix violin pact awesome issue expire time hammer cinnamon tool top";
 
 module.exports = {
-  // See <http://truffleframework.com/docs/advanced/configuration>
-  // to customize your Truffle configuration!
+  networks: {
+    development: {
+      host: "127.0.0.1",
+      port: 7545,
+      network_id: "*"
+    },
+    gethhd: {
+      provider: function() {
+        return new HDWalletProvider(mnemonicWXL, "http://127.0.0.1:8545");
+      },
+      network_id: "*",
+      gas: 7000000
+    }
+  }
 };
