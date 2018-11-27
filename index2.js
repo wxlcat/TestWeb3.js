@@ -1,4 +1,4 @@
-// web3.js 0.20.x
+// web3.js 1.0
 window.addEventListener('load', function() {
     if (typeof web3 !== 'undefined') {
         web3js = new Web3(web3.currentProvider);
@@ -12,15 +12,15 @@ window.addEventListener('load', function() {
 
 function loaded() {       
 
-    var Address = "0x83e3fcff666afc0834e9ec06222b4c8e3e39f078"; // age indexed
+    var Address = "0x50c50b33b6ceaf7e0ea2d0deb92b684407686cec"; // age indexed
     var info;
 
     $.getJSON("build/contracts/InfoContract.json", "", (data)=>{
-        info = web3js.eth.contract(data.abi).at(Address);
+        info = new web3js.eth.Contract(data.abi, Address);
     });    
-    
+
     $("#getInfo").click(function (){
-        info.getInfo.call({from:'0x5492C0300A995BB498b1731b335dD7E84a279306'}, 
+        info.methods.getInfo().call({from:'0x5492C0300A995BB498b1731b335dD7E84a279306'}, 
             (error, result) => {
                 if(!error) {
                     console.log(result);
@@ -31,11 +31,11 @@ function loaded() {
             }
         )
     });
-
+    
     $("#setInfo").click(function (){
         let name = $("#name").val();
         let age = $("#age").val();
-        info.setInfo.sendTransaction(name, age, {from:"0x5492C0300A995BB498b1731b335dD7E84a279306"}, (error, ret)=>{
+        info.methods.setInfo(name, age).send({from:"0x5492C0300A995BB498b1731b335dD7E84a279306"}, (error, ret)=>{
             if(!error)
                 console.log(ret);
             else
@@ -43,46 +43,9 @@ function loaded() {
         })
     });
 
-    $("#getEvent_filter").click(()=>{
+    $("#once").click(()=>{
 
-        var filter = web3js.eth.filter({
-            fromBlock: 0, 
-            toBlock: 'latest', 
-            address: Address
-        });
-
-        filter.get((error,ret)=>{
-            if(!error) {
-                console.log(ret);
-            }
-            else{
-                console.error(error);
-            }
-        });
-    });
-
-    $("#getEvent").click(()=>{
-
-        var evt = info.allEvents({fromBlock: 0, toBlock: 'latest'});
-        evt.get((error,ret)=>{
-            if(!error) {
-                console.log(ret);
-            }
-            else{
-                console.error(error);
-            }
-        });
-    });
-
-    $("#watchEvent_filter").click(()=>{
-
-        var filter = web3js.eth.filter({
-            fromBlock: 0, 
-            toBlock: 'latest', 
-            address: Address
-        });
-
-        filter.watch((error,ret)=>{
+        info.once('SetInfo', {fromBlock: 0}, (error, ret)=>{
             if(!error) {
                 console.log(ret);
             }
@@ -93,17 +56,30 @@ function loaded() {
 
     });
 
-    $("#watchEvent").click(()=>{
+    $("#events").click(()=>{
 
-        var evtSetInfo = info.SetInfo({_age:30});
-        evtSetInfo.watch((error,ret)=>{
+        info.events.SetInfo({fromBlock: 0}, (error, ret)=>{
             if(!error) {
-                console.log("ret", ret);
+                console.log(ret);
             }
             else{
-                console.error("error", error);
-            }
+                console.error(error);
+            } 
         });
+
+    });
+
+    $("#allEvents").click(()=>{
+
+        info.events.allEvents({fromBlock: 0}, (error, ret)=>{
+            if(!error) {
+                console.log(ret);
+            }
+            else{
+                console.error(error);
+            } 
+        });
+
     });
 
 
