@@ -1,70 +1,40 @@
 window.addEventListener('load', function() {
-    // Checking if Web3 has been injected by the browser (Mist/MetaMask)
     if (typeof web3 !== 'undefined') {
-        // Use Mist/MetaMask's provider
         web3js = new Web3(web3.currentProvider);
+        console.log("use currentProvider")
     } else {
         console.log('No web3? You should consider trying MetaMask!')
-        // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
         web3js = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        console.log("use localhost");
     }
 })   
 
-function loaded() {              
+function loaded() {       
 
-    var abi = [
-        {
-            "constant": false,
-            "inputs": [
-                {
-                    "name": "_name",
-                    "type": "string"
-                },
-                {
-                    "name": "_age",
-                    "type": "uint256"
-                }
-            ],
-            "name": "setInfo",
-            "outputs": [],
-            "payable": false,
-            "stateMutability": "nonpayable",
-            "type": "function"
-        },
-        {
-            "constant": true,
-            "inputs": [],
-            "name": "getInfo",
-            "outputs": [
-                {
-                    "name": "",
-                    "type": "string"
-                },
-                {
-                    "name": "",
-                    "type": "uint256"
-                }
-            ],
-            "payable": false,
-            "stateMutability": "view",
-            "type": "function"
-        }
-    ];
+    var Address = "0x83e3fcff666afc0834e9ec06222b4c8e3e39f078"; // age indexed
+    // var Address = "0xabf9c3c9b1cb9647b92497ec6018ee5dae249cf8"; // name indexed
+    // var Address = "0x557d6737b75839af127f155021e7ae2d3b935fce"; // sender indexed
+    // var Address = "0x10e8bff74f082c6421a716a637376f1da5211cae"; // no indexed
+    var info;
 
-    var info = new web3js.eth.Contract(abi, "0x6ee95b5891d8c4fe1ba580b6f6115731925d534c");
+    $.getJSON("build/contracts/InfoContract.json", "", (data)=>{
+        info = web3js.eth.contract(data.abi).at(Address);
+    });    
     
     $("#setInfo").click(function (){
-        info.methods.setInfo($("#name").val(), $("#age").val()).send({from: '0x5dca0fD7dc428fF7Af36513696CeaF6970312d65'}).then(
-            function(receipt) {
-                console.log(receipt);
-            }
-        );
+        let name = $("#name").val();
+        let age = $("#age").val();
+        info.setInfo.sendTransaction(name, age, {from:"0x5492C0300A995BB498b1731b335dD7E84a279306"}, (error, ret)=>{
+            if(!error)
+                console.log(ret);
+            else
+                console.warn(error);
+        })
     });
 
     $("#getInfo").click(function (){
-        info.methods.getInfo().call(
-            {from: '0x5dca0fD7dc428fF7Af36513696CeaF6970312d65'}, 
-            function(error, result) {
+        info.getInfo.call({from:'0x5492C0300A995BB498b1731b335dD7E84a279306'}, 
+            (error, result) => {
                 if(!error) {
                     console.log(result);
                 }
@@ -74,4 +44,69 @@ function loaded() {
             }
         )
     });
+
+    $("#getEvent_filter").click(()=>{
+
+        var filter = web3js.eth.filter({
+            fromBlock: 0, 
+            toBlock: 'latest', 
+            address: Address
+        });
+
+        filter.get((error,ret)=>{
+            if(!error) {
+                console.log(ret);
+            }
+            else{
+                console.error(error);
+            }
+        });
+    });
+
+    $("#getEvent").click(()=>{
+
+        var evt = info.allEvents({fromBlock: 0, toBlock: 'latest'});
+        evt.get((error,ret)=>{
+            if(!error) {
+                console.log(ret);
+            }
+            else{
+                console.error(error);
+            }
+        });
+    });
+
+    $("#watchEvent_filter").click(()=>{
+
+        var filter = web3js.eth.filter({
+            fromBlock: 0, 
+            toBlock: 'latest', 
+            address: Address
+        });
+
+        filter.watch((error,ret)=>{
+            if(!error) {
+                console.log(ret);
+            }
+            else{
+                console.error(error);
+            }
+        });
+
+    });
+
+    $("#watchEvent").click(()=>{
+
+        var evtSetInfo = info.SetInfo({_age:30});
+        evtSetInfo.watch((error,ret)=>{
+            if(!error) {
+                console.log("ret", ret);
+            }
+            else{
+                console.error("error", error);
+            }
+        });
+    });
+
+
 }
