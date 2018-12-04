@@ -17,6 +17,7 @@ function loaded() {
 
     $.getJSON("build/contracts/InfoContract.json", "", (data)=>{
         info = new web3js.eth.Contract(data.abi, Address);
+        console.log("info", info);
     });    
 
     $("#getInfo").click(function (){
@@ -58,7 +59,7 @@ function loaded() {
 
     $("#events").click(()=>{
 
-        info.events.SetInfo({fromBlock: 0}, (error, ret)=>{
+        var evt = info.events.SetInfo({fromBlock: 0}, (error, ret)=>{
             if(!error) {
                 console.log(ret);
             }
@@ -66,7 +67,7 @@ function loaded() {
                 console.error(error);
             } 
         });
-
+        console.log(evt);
     });
 
     $("#allEvents").click(()=>{
