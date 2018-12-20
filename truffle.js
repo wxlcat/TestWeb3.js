@@ -13,6 +13,7 @@
  */
 var HDWalletProvider = require("truffle-hdwallet-provider");
 var mnemonicWXL = "good mix violin pact awesome issue expire time hammer cinnamon tool top";
+var mnemonic = "enroll split crane olive coffee keep remind target squeeze congress mistake impulse";
 
 module.exports = {
   networks: {
@@ -41,6 +42,22 @@ module.exports = {
       network_id: '3',
       gas: 7000000,
       gasPrice: 20000000000
-  } 
+    },
+    quorum: {
+      host: "127.0.0.1",
+      port: 22000,
+      network_id: "*",
+      gas: 7000000,
+      gasPrice: 0
+    },
+    wxl_quorum: {
+      provider: function() {
+        return new HDWalletProvider(mnemonic, "http://127.0.0.1:22000", 0, 3);
+      },
+      network_id: "*",
+      gas: 7000000,
+      gasLimit: 30000000000,
+      gasPrice: 0
+    }
   }
 };

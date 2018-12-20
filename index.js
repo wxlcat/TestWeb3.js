@@ -5,14 +5,14 @@ window.addEventListener('load', function() {
         console.log("use currentProvider")
     } else {
         console.log('No web3? You should consider trying MetaMask!')
-        web3js = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+        web3js = new Web3(new Web3.providers.HttpProvider("http://localhost:22000"));
         console.log("use localhost");
     }
 })   
 
 function loaded() {       
 
-    var Address = "0x83e3fcff666afc0834e9ec06222b4c8e3e39f078"; // age indexed
+    var Address = "0xf9fa0c66eb3e0f6c5a9bd59e15c6d4e37218cf36"; // age indexed
     var info;
 
     $.getJSON("build/contracts/InfoContract.json", "", (data)=>{
@@ -20,7 +20,7 @@ function loaded() {
     });    
     
     $("#getInfo").click(function (){
-        info.getInfo.call({from:'0x5492C0300A995BB498b1731b335dD7E84a279306'}, 
+        info.getInfo.call({}, 
             (error, result) => {
                 if(!error) {
                     console.log(result);
@@ -35,7 +35,7 @@ function loaded() {
     $("#setInfo").click(function (){
         let name = $("#name").val();
         let age = $("#age").val();
-        info.setInfo.sendTransaction(name, age, {from:"0x5492C0300A995BB498b1731b335dD7E84a279306"}, (error, ret)=>{
+        info.setInfo.sendTransaction(name, age, {privateFor:["BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo="]}, (error, ret)=>{
             if(!error)
                 console.log(ret);
             else
@@ -47,8 +47,7 @@ function loaded() {
 
         var filter = web3js.eth.filter({
             fromBlock: 0, 
-            toBlock: 'latest', 
-            address: Address
+            toBlock: 'latest'
         });
 
         filter.get((error,ret)=>{
@@ -78,8 +77,7 @@ function loaded() {
 
         var filter = web3js.eth.filter({
             fromBlock: 0, 
-            toBlock: 'latest', 
-            address: Address
+            toBlock: 'latest'
         });
 
         filter.watch((error,ret)=>{
@@ -95,7 +93,7 @@ function loaded() {
 
     $("#watchEvent").click(()=>{
 
-        var evtSetInfo = info.SetInfo({_age:30});
+        var evtSetInfo = info.SetInfo();
         evtSetInfo.watch((error,ret)=>{
             if(!error) {
                 console.log("ret", ret);
