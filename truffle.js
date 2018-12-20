@@ -50,14 +50,14 @@ module.exports = {
       gas: 7000000,
       gasPrice: 0
     },
-    wxl_quorum: {
-      provider: function() {
-        return new HDWalletProvider(mnemonic, "http://127.0.0.1:22000", 0, 3);
-      },
-      network_id: "*",
-      gas: 7000000,
-      gasLimit: 30000000000,
-      gasPrice: 0
+    wxl_quorum_hd: {
+        provider: function() {
+          return new HDWalletProvider(mnemonic, "http://127.0.0.1:22000", 0, 3);
+        },
+        network_id: "*",
+        gas: 7000000,
+        gasLimit: 30000000000,
+        gasPrice: 0
     }
   }
 };
